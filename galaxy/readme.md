@@ -7,7 +7,7 @@ One of the main goals is to make the access to entire tool suites as easy as pos
 this includes the setup of a public available webservice that needs to be maintained, or that the Tool-user needs to either setup a Galaxy Server by its own or to have Admin access to a local Galaxy server. 
 With docker, tool developers can create their own Image with all dependencies and the user only needs to run it within docker.
 
-The Image is based on [Debian/wheezy](http://www.debian.org/). and all recommended Galaxy requirements are installed.
+The Image is based on [Ubuntu/14.04](https://wiki.ubuntu.com/LTS). and all recommended Galaxy requirements are installed.
 
 
 Usage
@@ -20,11 +20,11 @@ After the successful installation, all what you need to do is:
 ``docker run -d -p 8080:80 bgruening/galaxy-stable``
 
 I will shortly explain the meaning of all the parameters. For a more detailed describtion please consult the [docker manual](http://docs.docker.io/), it's really worth reading.
-Let's start: ``docker run`` will run the Image/Container for you. In case you do not have the Container stored locally, docker will download it for you. ``-p 8080:80`` will make the port 80 (inside of the container) available on port 8080 on your host. Inside the container a Apache Webserver is running on port 80 and that port can be bound to a local port on your host computer. With this parameter you can access your Galaxy instance via ``http://localhost:8080`` immediately after executing the command above. ``bgruening/galaxy-stable`` is the Image/Container name, that directs docker to the correct path in the [docker index](https://index.docker.io/u/bgruening/galaxy-stable/). ``-d`` will start the docker container in daemon mode. For an interactive session, you can execute:
+Let's start: ``docker run`` will run the Image/Container for you. In case you do not have the Container stored locally, docker will download it for you. ``-p 8080:80`` will make the port 80 (inside of the container) available on port 8080 on your host. Inside the container a nginx Webserver is running on port 80 and that port can be bound to a local port on your host computer. With this parameter you can access your Galaxy instance via ``http://localhost:8080`` immediately after executing the command above. ``bgruening/galaxy-stable`` is the Image/Container name, that directs docker to the correct path in the [docker index](https://index.docker.io/u/bgruening/galaxy-stable/). ``-d`` will start the docker container in daemon mode. For an interactive session, you can execute:
 
 ``docker run -i -t -p 8080:80 bgruening/galaxy-stable``
 
-and run the ``` startup ``` script by your own, to start PostgreSQL, Apache and Galaxy.
+and run the ``` startup ``` script by your own, to start PostgreSQL, uWSGI, nginx, and Galaxy.
 
 Docker images are "read-only", all your changes inside one session will be lost after restart. This mode is usefull to present Galaxy to your collegues or to run workshops with it. To install Tool Shed respositories or to save your data you need to export the calculated data to the host computer.
 
@@ -32,7 +32,7 @@ Fortunately, this is as easy as:
 
 ``docker run -d -p 8080:80 -v /home/user/galaxy_storage/:/export/ bgruening/galaxy-stable``
 
-With the additional ``-v /home/user/galaxy_storage/:/export/`` parameter, docker will mount the folder ``/home/user/galaxy_storage`` into the Container under ``/export/``. A ``startup.sh`` script, that is usually starting Apache, PostgreSQL and Galaxy, will recognise the export directory with one of the following outcomes:
+With the additional ``-v /home/user/galaxy_storage/:/export/`` parameter, docker will mount the folder ``/home/user/galaxy_storage`` into the Container under ``/export/``. A ``startup.sh`` script, that is usually starting nginx, PostgreSQL and Galaxy, will recognise the export directory with one of the following outcomes:
 
   - In case of an empty ``/export/`` directory, it will move the [PostgreSQL](http://www.postgresql.org/) database, the Galaxy database directory, Shed Tools and Tool Dependencies and various config scripts to /export/ and symlink back to the original location.
   - In case of a non-empty ``/export/``, for example if you continue a previouse session within the same folder, nothing will be moved, but the symlinks will be created.
